@@ -1,27 +1,35 @@
 #include <vector>
-//#include <unordered_set>
 #include <ostream>
 
-#define DEFAULT_DENSITY 30
+/// @brief A Depth First Search table that contains the lifetime and parent of each vertex found.
+struct dfsTable
+{
+    std::vector<int> discTime, 
+    endTime,
+    parent;
+    dfsTable(size_t n);
+};
 
-/// @brief Simple non-directed graph adjacency list implementation
+/// @brief Simple non-directed graph adjacency list implementation.
 class Graph
 {
 private:
-    int start, n, m;
+    size_t start, n, m;
     std::vector<std::vector<int>> adjList;
     void genMinConnectedGraph();
+    void populate(size_t target);
 public:
-    Graph(int start_, int n_, int density);
+    Graph(size_t start_, size_t n_, size_t m_);
     Graph(std::string filename);
     ~Graph();
     int getN();
     int getM(); 
-    void addEdge(int v, int w);
+    friend std::ostream &operator<<(std::ostream &os, Graph g);
+    bool addEdge(int v, int w);
     void addVertex();
     void removeEdge(int v, int w);
     void removeVertex(int v);
     bool isConnected();
     void dump(std::string filename);
-    friend std::ostream &operator<<(std::ostream &os, Graph g);
+    dfsTable dfs(int root);
 };
