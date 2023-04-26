@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[]) 
 {
-    Graph g("./tests/graph-test-8.txt");
-    std::cout << g << g.getM() << "\n";
+    Graph g("./tests/graph-test-11.txt");
+    g.findBlocksByDisjointPaths();
     return 0;
 }

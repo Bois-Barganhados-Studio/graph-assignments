@@ -1,8 +1,11 @@
 # Compiler
 CC = g++
 
-# Compiler flags
-CFLAGS = -W -Wall -Werror -Wextra -pedantic -std=c++17
+# Debug flags
+DBFLAGS = -fsanitize=address -W -Wall -Werror -Wextra -pedantic -std=c++17
+
+# Release flags
+RFLAGS = -Ofast -std=c++17
 
 # Paths
 INC_PATH = .
@@ -16,9 +19,13 @@ OBJ = $(SRC:.cpp=.o)
 # Output Binary
 BIN = run
 
-# Default target
-all: $(OBJ)
-	$(CC) $(CFLAGS) -I$(INC_PATH) -o $(BIN) $(OBJ)
+# Debug build
+debug: $(OBJ)
+	$(CC) $(DBFLAGS) -I$(INC_PATH) -o $(BIN) $(OBJ)
+
+# Release build
+release: $(OBJ)
+	$(CC) $(RFLAGS) -I$(INC_PATH) -o $(BIN) $(OBJ)
 
 # Clean rule
 clean:

@@ -1,5 +1,6 @@
 #include <vector>
 #include <ostream>
+#include <unordered_set>
 
 /// @brief A Depth First Search table that contains the lifetime and parent of each vertex found.
 struct dfsTable
@@ -32,4 +33,6 @@ public:
     bool isConnected();
     void dump(std::string filename);
     dfsTable dfs(int root);
+    std::vector<std::vector<int>> findBlocksByDisjointPaths();
+    bool bogoTwoDisjointPaths(int s, int t, std::unordered_set<int>& share_block);
 };

@@ -4,6 +4,8 @@
 #include <iterator>
 #include <algorithm>
 #include <fstream>
+#include <unordered_set>
+#include <deque>
 
 /// @brief Contructs a connected graph based on the given criteria.
 /// @param start_ Index to start using the vertex vector.
@@ -204,4 +206,111 @@ dfsTable Graph::dfs(int root)
         }
     }
     return res;
+}
+
+std::vector<std::vector<int>> Graph::findBlocksByDisjointPaths()
+{
+    std::vector<std::vector<int>> blocks;
+    std::vector<std::unordered_set<int>> shared_blocks(n);
+    for (int v = start; v < n; v++) {
+        for (int w = v + 1; w < n; w++) {
+            if (shared_blocks[v].find(w) == shared_blocks[v].end()) {
+                bogoTwoDisjointPaths(v, w, shared_blocks[v]);
+            } 
+            if (v != w && shared_blocks[v].find(w) != shared_blocks[v].end()) {
+                shared_blocks[w].insert(v);
+            }
+        }
+    }
+    for (int v = start; v < n; v++) {
+        auto& set = shared_blocks[v];
+        if (set.empty()) 
+            continue;
+        set.insert(v);
+        for (auto i = set.begin(); i != set.end(); i++) {
+            if (*i == v) 
+                continue;
+            auto& set_i = shared_blocks[*i];
+            for (auto j = set_i.begin(); j != set_i.end();) {
+                if (set.find(*j) != set.end()) {
+                    set_i.erase(j++);
+                } else {
+                    ++j;
+                }
+            }
+        }
+        
+    }
+    for (auto& it : shared_blocks) {
+        if (!it.empty()) {
+            std::vector tmp(it.begin(), it.end());
+            std::sort(tmp.begin(), tmp.end());
+            blocks.emplace_back(tmp);
+            it.clear();
+        }
+    }
+    return blocks;
+}
+
+bool Graph::bogoTwoDisjointPaths(int s, int t, std::unordered_set<int>& share_block)
+{
+    if (std::find(adjList[s].begin(), adjList[s].end(), t) != adjList[s].end()) {
+        share_block.insert(t);
+        return true;
+    }
+    std::vector<bool> stacked(n, false);
+    std::vector<std::unordered_set<int>> paths;
+    std::vector<int> clojure, visitCount(n, 0);
+    clojure.push_back(s);
+    stacked[s] = true;
+    while (!clojure.empty()) {
+        int v = clojure.back();
+        if (visitCount[v] == adjList[v].size()) {
+            stacked[v] = false;
+            visitCount[v] = 0;
+            clojure.pop_back();
+        } else {
+            while (visitCount[v] < adjList[v].size()) {
+                int w = adjList[v][visitCount[v]++];
+                if (w == t) {
+                    std::unordered_set<int> tmp;
+                    for (int i = 1; i < clojure.size(); i++)
+                        tmp.insert(clojure[i]);
+                    paths.emplace_back(tmp);
+                } else if (!stacked[w]) {
+                    clojure.push_back(w);
+                    stacked[w] = true;
+                    break;
+                }
+            }
+        }
+    }
+    clojure.clear();
+    stacked.clear();
+    visitCount.clear();
+    bool match = false;
+    for (int i = 0; i < paths.size(); i++) {
+        for (int j = i + 1; j < paths.size(); j++) {
+            int min = i, max = j;
+            if (paths[i].size() > paths[j].size()) {
+                max = i;
+                min = j;
+            }
+            for (int it : paths[min]) {
+                match = paths[max].find(it) != paths[max].end();
+                if (match) {
+                    break;
+                }
+            }
+            if (!match) {
+                for (int it : paths[i])
+                    share_block.insert(it);
+                for (int it : paths[i])
+                    share_block.insert(it);
+                share_block.insert(t);
+                return true;
+            }
+        }
+    }
+    return false;
 }
