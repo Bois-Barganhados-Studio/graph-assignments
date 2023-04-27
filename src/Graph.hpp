@@ -33,6 +33,11 @@ public:
     bool isConnected();
     void dump(std::string filename);
     dfsTable dfs(int root);
+    bool bfs(int s, int t, std::vector<int>& level);
+    bool findCycle(int s, int t, std::vector<int>& level, std::unordered_set<int>& cycle);
+    std::vector<std::vector<int>> findBlocksByCycle();
+
+    // bogo version
     std::vector<std::vector<int>> findBlocksByDisjointPaths();
     bool bogoTwoDisjointPaths(int s, int t, std::unordered_set<int>& share_block);
 };

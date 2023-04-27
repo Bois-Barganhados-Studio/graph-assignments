@@ -5,7 +5,7 @@ CC = g++
 DBFLAGS = -fsanitize=address -W -Wall -Werror -Wextra -pedantic -std=c++17
 
 # Release flags
-RFLAGS = -Ofast -std=c++17
+RFLAGS = -O2 -std=c++17
 
 # Paths
 INC_PATH = .

@@ -208,6 +208,118 @@ dfsTable Graph::dfs(int root)
     return res;
 }
 
+bool Graph::bfs(int s, int t, std::vector<int>& level)
+{
+    bool res = false;
+    std::deque<int> q;
+    q.push_back(s);
+    level[s] = 0;
+    while(!q.empty()) {
+        int v = q.back(); q.pop_back();
+        if (v == t)
+            res = true;
+        for (int w : adjList[v]) {
+            if (level[w] == -1) {
+                level[w] = level[v] + 1;
+                q.push_front(w);
+            }
+        }
+    }
+    return res;
+}
+
+bool Graph::findCycle(int s, int t, std::vector<int>& level, std::unordered_set<int>& cycle)
+{
+    if (level[s] + 1 == level[t]) {
+        cycle = {s, t};
+        return true;
+    }
+    std::vector<int> clojure, visitCount(n, 0);
+    std::vector<bool> inClojure(n, false);
+    int found = 0;
+    clojure.push_back(s);
+    inClojure[s] = true;
+    while (!clojure.empty()) {
+        int v = clojure.back();
+        if (visitCount[v] == adjList[v].size()) {
+            inClojure[v] = false;
+            clojure.pop_back();
+        } else if (v == t) {
+            found++;
+            for (auto i : clojure)
+                cycle.insert(i);
+            if (found == 2)
+                break;
+            inClojure[v] = false;
+            while (clojure.back() != s)
+                clojure.pop_back();
+            v = s;
+        } else while (visitCount[v] < adjList[v].size()) {
+            int w = adjList[v][visitCount[v]++];
+            if (!inClojure[w] && level[w] >= level[v]) {
+                inClojure[w] = true;
+                clojure.push_back(w);
+                break;
+            }
+        }
+    }
+    return found == 2;
+}
+
+std::vector<std::vector<int>> Graph::findBlocksByCycle()
+{
+    std::vector<std::vector<int>> blocks;
+    std::vector<std::unordered_set<int>> cycles(n);
+    bool founded = false;
+    for (int v = start; v < n; v++) {
+        if (v == 2)
+            int nop = 0;
+        for (int w = v + 1; w < n; w++) {
+            for (auto& cycle : cycles) {
+                if (cycle.find(v) != cycle.end() && cycle.find(w) != cycle.end()) {
+                    founded = true;
+                    break;
+                }
+            }
+            std::vector<int> level(n, -1);
+            if (!founded) {
+                bfs(v, w, level);
+                findCycle(v, w, level, cycles[v]);
+            } else {
+                founded = false;
+            }
+        }
+    }
+    // Fix Block determination
+    for (int v = start; v < n; v++) {
+        auto& set = cycles[v];
+        if (set.empty()) 
+            continue;
+        set.insert(v);
+        for (auto i = set.begin(); i != set.end(); i++) {
+            if (*i == v) 
+                continue;
+            auto& set_i = cycles[*i];
+            for (auto j = set_i.begin(); j != set_i.end();) {
+                if (set.find(*j) != set.end()) {
+                    set_i.erase(j++);
+                } else {
+                    ++j;
+                }
+            }
+        }
+    }
+    for (auto& it : cycles) {
+        if (!it.empty()) {
+            std::vector tmp(it.begin(), it.end());
+            std::sort(tmp.begin(), tmp.end());
+            blocks.emplace_back(tmp);
+            it.clear();
+        }
+    }
+    return blocks;
+}
+
 std::vector<std::vector<int>> Graph::findBlocksByDisjointPaths()
 {
     std::vector<std::vector<int>> blocks;
