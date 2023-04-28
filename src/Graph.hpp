@@ -34,8 +34,13 @@ public:
     void dump(std::string filename);
     dfsTable dfs(int root);
     bool bfs(int s, int t, std::vector<int>& level);
+
+    // not 100 working
     bool findCycle(int s, int t, std::vector<int>& level, std::unordered_set<int>& cycle);
     std::vector<std::vector<int>> findBlocksByCycle();
+
+    // new attempt
+    void findMaxCycles(int s, std::vector<int>& level, std::vector<std::unordered_set<int>>& cycles);
 
     // bogo version
     std::vector<std::vector<int>> findBlocksByDisjointPaths();
