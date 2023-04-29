@@ -1,5 +1,6 @@
 #include <vector>
 #include <ostream>
+#include <unordered_set>
 
 /// @brief A Depth First Search table that contains the lifetime and parent of each vertex found.
 struct dfsTable
@@ -16,10 +17,10 @@ class Graph
 private:
     size_t start, n, m;
     std::vector<std::vector<int>> adjList;
-    void genMinConnectedGraph();
-    void populate(size_t target);
+    void inline genMinConnectedGraph(int begin, int end);
+    void inline populate(int begin, int end, size_t target);
 public:
-    Graph(size_t start_, size_t n_, size_t m_);
+    Graph(size_t START, size_t N, size_t K, float bDensity);
     Graph(std::string filename);
     ~Graph();
     int getN();
@@ -32,4 +33,11 @@ public:
     bool isConnected();
     void dump(std::string filename);
     dfsTable dfs(int root);
+    // Method I
+    void bfs(int s, std::vector<int>& level);
+    std::vector<std::vector<int>> findBlocksByCycle();
+    void findCycles(int s, std::vector<int>& level, std::vector<std::unordered_set<int>>& cycles);
+    // Method I - bogo version
+    std::vector<std::vector<int>> findBlocksByDisjointPaths();
+    bool bogoTwoDisjointPaths(int s, int t, std::unordered_set<int>& share_block);
 };
