@@ -13,14 +13,13 @@ std::ostream & operator<<(std::ostream & os, std::vector<int> vec)
 
 int main(int argc, char *argv[]) 
 {
-#ifdef DEBUG
-    Graph g("./tests/graph-test-11.txt");
-#else
-    if (argc < 3)
+#if 0
+    if (argc < 4)
         return;
-    Graph g(1, atoi(argv[1]), atoi(argv[2]));
+    Graph g(1, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
 #endif
-    
+    Graph g("./tests/graph-test-11.txt"); 
+
     auto begin = std::chrono::high_resolution_clock::now();
 
     auto blocks = g.findBlocksByCycle();
@@ -32,5 +31,6 @@ int main(int argc, char *argv[])
     }
 
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms\n";
+    
     return 0;
 }
