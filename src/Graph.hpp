@@ -1,5 +1,6 @@
 #include <vector>
 #include <ostream>
+#include <utility>
 #include <unordered_set>
 
 /// @brief A Depth First Search table that contains the lifetime and parent of each vertex found.
@@ -41,7 +42,11 @@ public:
     // Method I - bogo version
     std::vector<std::vector<int>> findBlocksByDisjointPaths();
     bool bogoTwoDisjointPaths(int s, int t, std::unordered_set<int> &share_block);
+    // Method II
+    bool isJoint(int s);
+    void jointDfs(int s, const std::unordered_set<int> &joints, std::vector<std::unordered_set<int>> &blocks, std::vector<int> &level);
+    std::vector<std::vector<int>> findBlocksByJoints();
     /// @brief Method III - Tarjan iterative algorithm for finding biconnected components.
     /// @return A table containing the blocks of biconnected components of the graph.
-    std::vector<std::vector<int>> tarjan();
+    std::vector<std::vector<std::pair<int, int>>> findBlocksByTarjan();
 };

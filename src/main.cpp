@@ -2,7 +2,21 @@
 #include <fstream>
 #include <chrono>
 #include <iterator>
+#include <utility>
 #include "Graph.hpp"
+
+std::ostream &operator<<(std::ostream &os, std::vector<std::pair<int, int>> vec)
+{
+    os << "{";
+    for (auto it = vec.begin(); it != vec.end(); it++)
+    {
+        os << "(" << it->first << " - " << it->second << ")";
+        if (it != vec.end() - 1)
+            os << ", ";
+    }
+    os << "}\n";
+    return os;
+}
 
 std::ostream &operator<<(std::ostream &os, std::vector<int> vec)
 {
@@ -19,25 +33,25 @@ int main(int argc, char *argv[])
         return;
     Graph g(1, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
 #endif
-    Graph g("./tests/graph-test-100000.txt");
+    Graph g("./tests/graph-test-11.txt");
 
     auto begin = std::chrono::high_resolution_clock::now();
 
     // auto blocks = g.findBlocksByCycle();
-    auto blocks2 = g.tarjan();
+    // auto blocks = g.findBlocksByTarjan();
+    auto blocks = g.findBlocksByJoints();
 
     auto end = std::chrono::high_resolution_clock::now();
 
+    for (int i = 0; i < blocks.size(); i++)
+    {
+        std::cout << "Block " << i + 1 << ": " << blocks[i];
+    }
+    // std::ofstream out("./results/graph-test-100-joints.txt");
     // for (int i = 0; i < blocks.size(); i++)
     // {
-    //     std::cout << "Block " << i + 1 << ": " << blocks[i];
+    //     out << "Block " << i + 1 << ": " << blocks[i];
     // }
-    // std::cout << "\n";
-    std::ofstream out("./results/graph-test-100000-tarjan.txt");
-    for (int i = 0; i < blocks2.size(); i++)
-    {
-        out << "Block " << i + 1 << ": " << blocks2[i];
-    }
 
     std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms\n";
 

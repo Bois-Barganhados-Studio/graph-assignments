@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include <deque>
 #include <utility> // pair
+#include <iostream>
 
 /// @brief Contructs a connected graph based on the given criteria.
 /// @param START Index to start using the vertex vector.
@@ -489,12 +490,21 @@ bool Graph::bogoTwoDisjointPaths(int s, int t, std::unordered_set<int> &share_bl
     return false;
 }
 
-std::vector<std::vector<int>> Graph::tarjan()
+struct hash_pair
+{
+    size_t operator()(const std::pair<int,
+                                      int> &x) const
+    {
+        return x.first ^ x.second;
+    }
+};
+
+std::vector<std::vector<std::pair<int, int>>> Graph::findBlocksByTarjan()
 {
     std::vector<int> stack, low(n, 0), disc_time(n, 0), children(n, 0), parent(n, 0), visit_count(n, 0);
     std::vector<std::pair<int, int>> edges;
-    std::vector<std::vector<int>> blocks;
-    std::unordered_set<int> block;
+    std::vector<std::vector<std::pair<int, int>>> blocks;
+    std::unordered_set<std::pair<int, int>, hash_pair> block;
     int v = 0, w = 0, u = 0;
     size_t t = 0;
 
@@ -536,16 +546,13 @@ std::vector<std::vector<int>> Graph::tarjan()
             {
                 while (edges.back() != std::make_pair(u, v))
                 {
-                    block.insert(edges.back().first);
-                    block.insert(edges.back().second);
-
+                    block.insert(edges.back());
                     edges.pop_back();
                 }
-                block.insert(edges.back().first);
-                block.insert(edges.back().second);
+                block.insert(edges.back());
                 edges.pop_back();
 
-                std::vector<int> tmp(block.begin(), block.end());
+                std::vector<std::pair<int, int>> tmp(block.begin(), block.end());
                 std::sort(tmp.begin(), tmp.end());
                 blocks.push_back(tmp);
                 block.clear();
@@ -555,16 +562,149 @@ std::vector<std::vector<int>> Graph::tarjan()
 
     while (!edges.empty())
     {
-        block.insert(edges.back().first);
-        block.insert(edges.back().second);
+        block.insert(edges.back());
         edges.pop_back();
     }
     if (!block.empty())
     {
-        std::vector<int> tmp(block.begin(), block.end());
+        std::vector<std::pair<int, int>> tmp(block.begin(), block.end());
         std::sort(tmp.begin(), tmp.end());
         blocks.push_back(tmp);
     }
 
     return blocks;
+}
+
+bool Graph::isJoint(int s)
+{
+    std::vector<int> stack, visit_count(n, 0);
+    std::vector<bool> visited(n, false);
+    int root = s == start ? start + 1 : start, v = 0, w = 0;
+
+    stack.push_back(root);
+    visited[root] = true;
+
+    while (!stack.empty())
+    {
+        v = stack.back();
+        if (visit_count[v] < adjList[v].size())
+        {
+            w = adjList[v][visit_count[v]++];
+            if (w != s && !visited[w])
+            {
+                stack.push_back(w);
+                visited[w] = true;
+            }
+        }
+        else
+        {
+            stack.pop_back();
+        }
+    }
+
+    return std::count(visited.begin(), visited.end(), false) > start + 1;
+}
+
+void Graph::jointDfs(int s, const std::unordered_set<int> &joints, std::vector<std::unordered_set<int>> &blocks, std::vector<int> &level)
+{
+    std::vector<int> stack, visit_count(n, 0);
+    std::vector<bool> visited(n, false);
+    int v = 0, w = 0;
+
+    stack.push_back(s);
+    visited[s] = true;
+    std::sort(adjList[s].begin(), adjList[s].end(), [&](int a, int b)
+              { return level[a] > level[b]; });
+
+    while (!stack.empty())
+    {
+        v = stack.back();
+        if (visit_count[v] < adjList[v].size())
+        {
+            w = adjList[v][visit_count[v]++];
+            if (joints.find(w) != joints.end())
+            {
+                std::unordered_set<int> block(stack.begin(), stack.end());
+
+                block.insert(w);
+                blocks.push_back(block);
+            }
+            else if (w != s && !visited[w])
+            {
+                stack.push_back(w);
+                std::sort(adjList[w].begin(), adjList[w].end(), [&](int a, int b)
+                          { return level[a] > level[b]; });
+                visited[w] = true;
+            }
+        }
+        else
+        {
+            stack.pop_back();
+        }
+    }
+}
+
+std::vector<std::vector<int>> Graph::findBlocksByJoints()
+{
+    std::vector<int> stack, level(n, -1);
+    std::unordered_set<int> joints;
+    std::vector<std::vector<int>> res;
+    std::vector<std::unordered_set<int>> blocks, new_blocks;
+    bool anexed = false;
+
+    for (int i = start; i < n; i++)
+    {
+        if (isJoint(i))
+            joints.insert(i);
+    }
+
+    for (auto it : joints)
+    {
+        bfs(it, level);
+        jointDfs(it, joints, blocks, level);
+        // anexed = false;
+        // for (auto &tmp : new_blocks)
+        // {
+        //     for (auto &i : blocks)
+        //     {
+        //         int count = 0;
+        //         for (auto j = tmp.begin(); j != tmp.end(); j++)
+        //         {
+        //             if (i.find(*j) != i.end())
+        //             {
+        //                 count++;
+        //             }
+        //             if (count == 2)
+        //                 break;
+        //         }
+        //         if (count == 2)
+        //         {
+        //             for (auto j = tmp.begin(); j != tmp.end(); j++)
+        //             {
+        //                 i.insert(*j);
+        //             }
+        //             anexed = true;
+        //             break;
+        //         }
+        //     }
+        //     if (!anexed)
+        //     {
+        //         blocks.push_back(tmp);
+        //     }
+        // }
+        // new_blocks.clear();
+    }
+
+    for (auto &it : blocks)
+    {
+        if (!it.empty())
+        {
+            std::vector<int> tmp(it.begin(), it.end());
+            std::sort(tmp.begin(), tmp.end());
+            res.emplace_back(tmp);
+            it.clear();
+        }
+    }
+
+    return res;
 }
