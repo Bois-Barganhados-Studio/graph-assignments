@@ -1,11 +1,12 @@
 #include "Graph.hpp"
 #include <cstdlib> // srand, rand
-#include <ctime> // time
+#include <ctime>   // time
 #include <iterator>
 #include <algorithm>
 #include <fstream>
 #include <unordered_set>
 #include <deque>
+#include <utility> // pair
 
 /// @brief Contructs a connected graph based on the given criteria.
 /// @param START Index to start using the vertex vector.
@@ -20,7 +21,8 @@ Graph::Graph(size_t START, size_t N, size_t K, float bDensity)
         K = N - 1;
     int begin = 1;
     std::vector<int> joints(K);
-    for (int i = 0; i < K - 1; i++) {
+    for (int i = 0; i < K - 1; i++)
+    {
         int tmp = rand() % (N / (K - i)) + 2;
         N -= tmp;
         joints[i] = begin + tmp - 1;
@@ -31,10 +33,11 @@ Graph::Graph(size_t START, size_t N, size_t K, float bDensity)
     joints.back() = begin + 1;
     genMinConnectedGraph(begin, begin + N);
     populate(begin, begin + N, ((N + (N - 1)) / 2) * bDensity - 1);
-    for (int i = 0; i < K - 1; i++) {
+    for (int i = 0; i < K - 1; i++)
+    {
         addEdge(joints[i], joints[i + 1]);
     }
-    for (auto& v : adjList)
+    for (auto &v : adjList)
         std::sort(v.begin(), v.end());
 }
 
@@ -46,9 +49,10 @@ void inline Graph::genMinConnectedGraph(int begin, int end)
     for (int i = begin; i < end; i++)
         if (i != in[0])
             out.push_back(i);
-    while (!out.empty()) {
+    while (!out.empty())
+    {
         int i = rand() % out.size(),
-        j = rand() % in.size();
+            j = rand() % in.size();
         addEdge(in[j], out[i]);
         in.push_back(out[i]);
         out.erase(out.begin() + i);
@@ -60,10 +64,12 @@ void inline Graph::genMinConnectedGraph(int begin, int end)
 void inline Graph::populate(int begin, int end, size_t target)
 {
     std::vector<int> edges(target);
-    for (auto& w : edges)
+    for (auto &w : edges)
         w = (rand() % (end - begin)) + begin;
-    while (!edges.empty()) {
-        for (int v = begin; v < end; v++) {
+    while (!edges.empty())
+    {
+        for (int v = begin; v < end; v++)
+        {
             if (adjList[v].size() > (end - begin - 1))
                 continue;
             if (addEdge(v, edges.back()))
@@ -82,7 +88,8 @@ Graph::Graph(std::string filename)
     ifs.open(filename);
     ifs >> start >> n;
     adjList = std::vector<std::vector<int>>(n, std::vector<int>());
-    while (ifs >> v >> w) {
+    while (ifs >> v >> w)
+    {
         addEdge(v, w);
     }
     ifs.close();
@@ -103,10 +110,11 @@ int Graph::getM()
 }
 
 /// @brief Ostream operator overload to allow printing the graph with std::cout
-std::ostream & operator<<(std::ostream & os, Graph g)
+std::ostream &operator<<(std::ostream &os, Graph g)
 {
     os << "start: " << g.start << ", n: " << g.n << ", m: " << g.m << ";\n";
-    for (int i = g.start; i < g.n; i++) {
+    for (int i = g.start; i < g.n; i++)
+    {
         os << "[" << i << "] = { ";
         std::copy(g.adjList[i].begin(), --g.adjList[i].end(), std::ostream_iterator<int>(os, ", "));
         os << g.adjList[i].back() << " }\n";
@@ -117,7 +125,8 @@ std::ostream & operator<<(std::ostream & os, Graph g)
 bool Graph::addEdge(int v, int w)
 {
     bool success = false;
-    if (v != w && v < n && w < n && !std::count(adjList[v].begin(), adjList[v].end(), w)) {
+    if (v != w && v < n && w < n && !std::count(adjList[v].begin(), adjList[v].end(), w))
+    {
         adjList[v].push_back(w);
         adjList[w].push_back(v);
         m++;
@@ -132,19 +141,23 @@ void Graph::addVertex()
     n++;
 }
 
-void Graph::removeEdge(int v, int w) {
+void Graph::removeEdge(int v, int w)
+{
     if (v < start || w < start || v >= n || w >= n)
         return;
-    if ((adjList[v].erase(std::remove(adjList[v].begin(), adjList[v].end(), w), adjList[v].end()) != adjList[v].end())
-    && adjList[w].erase(std::remove(adjList[w].begin(), adjList[w].end(), v), adjList[w].end()) != adjList[v].end()) {
+    if ((adjList[v].erase(std::remove(adjList[v].begin(), adjList[v].end(), w), adjList[v].end()) != adjList[v].end()) && adjList[w].erase(std::remove(adjList[w].begin(), adjList[w].end(), v), adjList[w].end()) != adjList[v].end())
+    {
         m--;
     }
 }
 
-void Graph::removeVertex(int v) {
-    if (v < 0) return;
+void Graph::removeVertex(int v)
+{
+    if (v < 0)
+        return;
     std::vector<int> tmp = adjList[v];
-    for (const auto& it : tmp) {
+    for (const auto &it : tmp)
+    {
         removeEdge(v, it);
     }
     adjList[v].push_back(-1);
@@ -158,10 +171,14 @@ bool Graph::isConnected()
         found[i] = true;
     std::vector<int> stack;
     stack.push_back(start);
-    while (!stack.empty()) {
-        int v = stack.back(); stack.pop_back();
-        for (int w : adjList[v]) {
-            if (!found[w]) {
+    while (!stack.empty())
+    {
+        int v = stack.back();
+        stack.pop_back();
+        for (int w : adjList[v])
+        {
+            if (!found[w])
+            {
                 stack.push_back(w);
                 found[w] = true;
             }
@@ -177,12 +194,14 @@ bool Graph::isConnected()
 /// ...
 /// @param filename the filename of the text file to be used.
 void Graph::dump(std::string filename)
-{   
+{
     std::ofstream ofs;
     ofs.open(filename);
     ofs << start << " " << n << "\n";
-    for (int v = start; v < n; v++) {
-        for (int w : adjList[v]) {
+    for (int v = start; v < n; v++)
+    {
+        for (int w : adjList[v])
+        {
             if (w > v)
                 ofs << v << " " << w << "\n";
         }
@@ -197,7 +216,7 @@ dfsTable::dfsTable(size_t n)
 {
 }
 
-/// @brief Depth First Search iterative algorithm . 
+/// @brief Depth First Search iterative algorithm .
 /// @param root The vertex where the search will start at.
 /// @return A table containing the lifetime and parent of each vertex found.
 dfsTable Graph::dfs(int root)
@@ -207,16 +226,21 @@ dfsTable Graph::dfs(int root)
     size_t t = 0;
     clojure.push_back(root);
     res.discTime[root] = ++t;
-    while (!clojure.empty()) {
+    while (!clojure.empty())
+    {
         int v = clojure.back();
-        if (visitCount[v] < adjList[v].size()) {
+        if (visitCount[v] < adjList[v].size())
+        {
             int w = adjList[v][visitCount[v]++];
-            if (!res.discTime[w]) {
+            if (!res.discTime[w])
+            {
                 res.parent[w] = v;
                 res.discTime[w] = ++t;
                 clojure.push_back(w);
             }
-        } else {
+        }
+        else
+        {
             res.endTime[v] = ++t;
             clojure.pop_back();
         }
@@ -224,16 +248,20 @@ dfsTable Graph::dfs(int root)
     return res;
 }
 
-void Graph::bfs(int s, std::vector<int>& level)
+void Graph::bfs(int s, std::vector<int> &level)
 {
-    level = std::vector(n, -1);
+    level = std::vector<int>(n, -1);
     std::deque<int> q;
     q.push_back(s);
     level[s] = 0;
-    while(!q.empty()) {
-        int v = q.back(); q.pop_back();
-        for (int w : adjList[v]) {
-            if (level[w] == -1) {
+    while (!q.empty())
+    {
+        int v = q.back();
+        q.pop_back();
+        for (int w : adjList[v])
+        {
+            if (level[w] == -1)
+            {
                 level[w] = level[v] + 1;
                 q.push_front(w);
             }
@@ -246,36 +274,46 @@ std::vector<std::vector<int>> Graph::findBlocksByCycle()
     std::vector<std::vector<int>> blocks;
     std::vector<std::unordered_set<int>> cycles;
     std::vector<int> level;
-    for (int v = start; v < n; v++) {
+    for (int v = start; v < n; v++)
+    {
         std::vector<std::unordered_set<int>> new_cycles;
         bfs(v, level);
         findCycles(v, level, new_cycles);
         bool anexed = false;
-        for (auto& tmp : new_cycles) {
-            for (auto& i : cycles) {
+        for (auto &tmp : new_cycles)
+        {
+            for (auto &i : cycles)
+            {
                 int count = 0;
-                for (auto j = tmp.begin(); j != tmp.end(); j++) {
-                    if (i.find(*j) != i.end()) {
+                for (auto j = tmp.begin(); j != tmp.end(); j++)
+                {
+                    if (i.find(*j) != i.end())
+                    {
                         count++;
                     }
                     if (count == 2)
                         break;
                 }
-                if (count == 2) {
-                    for (auto j = tmp.begin(); j != tmp.end(); j++) {
+                if (count == 2)
+                {
+                    for (auto j = tmp.begin(); j != tmp.end(); j++)
+                    {
                         i.insert(*j);
                     }
                     anexed = true;
                     break;
                 }
             }
-            if (!anexed) {
+            if (!anexed)
+            {
                 cycles.push_back(tmp);
             }
         }
     }
-    for (auto& it : cycles) {
-        if (!it.empty()) {
+    for (auto &it : cycles)
+    {
+        if (!it.empty())
+        {
             std::vector<int> tmp(it.begin(), it.end());
             std::sort(tmp.begin(), tmp.end());
             blocks.emplace_back(tmp);
@@ -285,26 +323,32 @@ std::vector<std::vector<int>> Graph::findBlocksByCycle()
     return blocks;
 }
 
-void Graph::findCycles(int s, std::vector<int>& level, 
-std::vector<std::unordered_set<int>>& cycles)
+void Graph::findCycles(int s, std::vector<int> &level,
+                       std::vector<std::unordered_set<int>> &cycles)
 {
     std::vector<int> clojure, visitCount(n, 0);
     std::vector<bool> visited(n, false);
     clojure.push_back(s);
     visited[s] = true;
-    while (!clojure.empty()) {
+    while (!clojure.empty())
+    {
         int v = clojure.back();
-        if (visitCount[v] == adjList[v].size()) {
+        if (visitCount[v] == adjList[v].size())
+        {
             clojure.pop_back();
-        } else {
+        }
+        else
+        {
             int w = adjList[v][visitCount[v]++];
-            if (w == s) {
+            if (w == s)
+            {
                 std::unordered_set<int> tmp(clojure.begin(), clojure.end());
                 cycles.push_back(tmp);
-            } else if (!visited[w]) {
-                std::sort(adjList[w].begin(), adjList[w].end(), [level](int a, int b){
-                    return level[a] > level[b];
-                });
+            }
+            else if (!visited[w])
+            {
+                std::sort(adjList[w].begin(), adjList[w].end(), [level](int a, int b)
+                          { return level[a] > level[b]; });
                 visited[w] = true;
                 clojure.push_back(w);
             }
@@ -316,37 +360,48 @@ std::vector<std::vector<int>> Graph::findBlocksByDisjointPaths()
 {
     std::vector<std::vector<int>> blocks;
     std::vector<std::unordered_set<int>> shared_blocks(n);
-    for (int v = start; v < n; v++) {
-        for (int w = v + 1; w < n; w++) {
-            if (shared_blocks[v].find(w) == shared_blocks[v].end()) {
+    for (int v = start; v < n; v++)
+    {
+        for (int w = v + 1; w < n; w++)
+        {
+            if (shared_blocks[v].find(w) == shared_blocks[v].end())
+            {
                 bogoTwoDisjointPaths(v, w, shared_blocks[v]);
-            } 
-            if (v != w && shared_blocks[v].find(w) != shared_blocks[v].end()) {
+            }
+            if (v != w && shared_blocks[v].find(w) != shared_blocks[v].end())
+            {
                 shared_blocks[w].insert(v);
             }
         }
     }
-    for (int v = start; v < n; v++) {
-        auto& set = shared_blocks[v];
-        if (set.empty()) 
+    for (int v = start; v < n; v++)
+    {
+        auto &set = shared_blocks[v];
+        if (set.empty())
             continue;
         set.insert(v);
-        for (auto i = set.begin(); i != set.end(); i++) {
-            if (*i == v) 
+        for (auto i = set.begin(); i != set.end(); i++)
+        {
+            if (*i == v)
                 continue;
-            auto& set_i = shared_blocks[*i];
-            for (auto j = set_i.begin(); j != set_i.end();) {
-                if (set.find(*j) != set.end()) {
+            auto &set_i = shared_blocks[*i];
+            for (auto j = set_i.begin(); j != set_i.end();)
+            {
+                if (set.find(*j) != set.end())
+                {
                     set_i.erase(j++);
-                } else {
+                }
+                else
+                {
                     ++j;
                 }
             }
         }
-        
     }
-    for (auto& it : shared_blocks) {
-        if (!it.empty()) {
+    for (auto &it : shared_blocks)
+    {
+        if (!it.empty())
+        {
             std::vector<int> tmp(it.begin(), it.end());
             std::sort(tmp.begin(), tmp.end());
             blocks.emplace_back(tmp);
@@ -356,9 +411,10 @@ std::vector<std::vector<int>> Graph::findBlocksByDisjointPaths()
     return blocks;
 }
 
-bool Graph::bogoTwoDisjointPaths(int s, int t, std::unordered_set<int>& share_block)
+bool Graph::bogoTwoDisjointPaths(int s, int t, std::unordered_set<int> &share_block)
 {
-    if (std::find(adjList[s].begin(), adjList[s].end(), t) != adjList[s].end()) {
+    if (std::find(adjList[s].begin(), adjList[s].end(), t) != adjList[s].end())
+    {
         share_block.insert(t);
         return true;
     }
@@ -367,21 +423,29 @@ bool Graph::bogoTwoDisjointPaths(int s, int t, std::unordered_set<int>& share_bl
     std::vector<int> clojure, visitCount(n, 0);
     clojure.push_back(s);
     stacked[s] = true;
-    while (!clojure.empty()) {
+    while (!clojure.empty())
+    {
         int v = clojure.back();
-        if (visitCount[v] == adjList[v].size()) {
+        if (visitCount[v] == adjList[v].size())
+        {
             stacked[v] = false;
             visitCount[v] = 0;
             clojure.pop_back();
-        } else {
-            while (visitCount[v] < adjList[v].size()) {
+        }
+        else
+        {
+            while (visitCount[v] < adjList[v].size())
+            {
                 int w = adjList[v][visitCount[v]++];
-                if (w == t) {
+                if (w == t)
+                {
                     std::unordered_set<int> tmp;
                     for (int i = 1; i < clojure.size(); i++)
                         tmp.insert(clojure[i]);
                     paths.emplace_back(tmp);
-                } else if (!stacked[w]) {
+                }
+                else if (!stacked[w])
+                {
                     clojure.push_back(w);
                     stacked[w] = true;
                     break;
@@ -393,20 +457,26 @@ bool Graph::bogoTwoDisjointPaths(int s, int t, std::unordered_set<int>& share_bl
     stacked.clear();
     visitCount.clear();
     bool match = false;
-    for (int i = 0; i < paths.size(); i++) {
-        for (int j = i + 1; j < paths.size(); j++) {
+    for (int i = 0; i < paths.size(); i++)
+    {
+        for (int j = i + 1; j < paths.size(); j++)
+        {
             int min = i, max = j;
-            if (paths[i].size() > paths[j].size()) {
+            if (paths[i].size() > paths[j].size())
+            {
                 max = i;
                 min = j;
             }
-            for (int it : paths[min]) {
+            for (int it : paths[min])
+            {
                 match = paths[max].find(it) != paths[max].end();
-                if (match) {
+                if (match)
+                {
                     break;
                 }
             }
-            if (!match) {
+            if (!match)
+            {
                 for (int it : paths[i])
                     share_block.insert(it);
                 for (int it : paths[i])
@@ -417,4 +487,84 @@ bool Graph::bogoTwoDisjointPaths(int s, int t, std::unordered_set<int>& share_bl
         }
     }
     return false;
+}
+
+std::vector<std::vector<int>> Graph::tarjan()
+{
+    std::vector<int> stack, low(n, 0), disc_time(n, 0), children(n, 0), parent(n, 0), visit_count(n, 0);
+    std::vector<std::pair<int, int>> edges;
+    std::vector<std::vector<int>> blocks;
+    std::unordered_set<int> block;
+    int v = 0, w = 0, u = 0;
+    size_t t = 0;
+
+    stack.push_back(start);
+    disc_time[start] = low[start] = ++t;
+
+    while (!stack.empty())
+    {
+        v = stack.back();
+        if (visit_count[v] < adjList[v].size())
+        {
+            w = adjList[v][visit_count[v]++];
+            if (!disc_time[w])
+            {
+                stack.push_back(w);
+                edges.emplace_back(v, w);
+                parent[w] = v;
+                children[v]++;
+                disc_time[w] = low[w] = ++t;
+            }
+            else if (w != parent[v])
+            {
+                low[v] = std::min(low[v], disc_time[w]);
+                if (disc_time[w] < disc_time[v])
+                {
+                    edges.emplace_back(v, w);
+                }
+            }
+        }
+        else
+        {
+            stack.pop_back();
+            if (!stack.size())
+                continue;
+            u = stack.back();
+            low[u] = std::min(low[u], low[v]);
+
+            if ((disc_time[u] == 1 && children[u] > 1) || (disc_time[u] > 1 && low[v] >= disc_time[u]))
+            {
+                while (edges.back() != std::make_pair(u, v))
+                {
+                    block.insert(edges.back().first);
+                    block.insert(edges.back().second);
+
+                    edges.pop_back();
+                }
+                block.insert(edges.back().first);
+                block.insert(edges.back().second);
+                edges.pop_back();
+
+                std::vector<int> tmp(block.begin(), block.end());
+                std::sort(tmp.begin(), tmp.end());
+                blocks.push_back(tmp);
+                block.clear();
+            }
+        }
+    }
+
+    while (!edges.empty())
+    {
+        block.insert(edges.back().first);
+        block.insert(edges.back().second);
+        edges.pop_back();
+    }
+    if (!block.empty())
+    {
+        std::vector<int> tmp(block.begin(), block.end());
+        std::sort(tmp.begin(), tmp.end());
+        blocks.push_back(tmp);
+    }
+
+    return blocks;
 }

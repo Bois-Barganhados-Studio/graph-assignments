@@ -5,9 +5,9 @@
 /// @brief A Depth First Search table that contains the lifetime and parent of each vertex found.
 struct dfsTable
 {
-    std::vector<int> discTime, 
-    endTime,
-    parent;
+    std::vector<int> discTime,
+        endTime,
+        parent;
     dfsTable(size_t n);
 };
 
@@ -19,12 +19,13 @@ private:
     std::vector<std::vector<int>> adjList;
     void inline genMinConnectedGraph(int begin, int end);
     void inline populate(int begin, int end, size_t target);
+
 public:
     Graph(size_t START, size_t N, size_t K, float bDensity);
     Graph(std::string filename);
     ~Graph();
     int getN();
-    int getM(); 
+    int getM();
     friend std::ostream &operator<<(std::ostream &os, Graph g);
     bool addEdge(int v, int w);
     void addVertex();
@@ -34,10 +35,13 @@ public:
     void dump(std::string filename);
     dfsTable dfs(int root);
     // Method I
-    void bfs(int s, std::vector<int>& level);
+    void bfs(int s, std::vector<int> &level);
     std::vector<std::vector<int>> findBlocksByCycle();
-    void findCycles(int s, std::vector<int>& level, std::vector<std::unordered_set<int>>& cycles);
+    void findCycles(int s, std::vector<int> &level, std::vector<std::unordered_set<int>> &cycles);
     // Method I - bogo version
     std::vector<std::vector<int>> findBlocksByDisjointPaths();
-    bool bogoTwoDisjointPaths(int s, int t, std::unordered_set<int>& share_block);
+    bool bogoTwoDisjointPaths(int s, int t, std::unordered_set<int> &share_block);
+    /// @brief Method III - Tarjan iterative algorithm for finding biconnected components.
+    /// @return A table containing the blocks of biconnected components of the graph.
+    std::vector<std::vector<int>> tarjan();
 };
