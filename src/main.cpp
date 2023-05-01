@@ -28,18 +28,16 @@ std::ostream &operator<<(std::ostream &os, std::vector<int> vec)
 
 int main(int argc, char *argv[])
 {
-#if 0
-    if (argc < 4)
-        return;
-    Graph g(1, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
-#endif
-    Graph g("./tests/graph-test-11.txt");
+    if (argc < 5)
+        return 1;
+
+    Graph g(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atof(argv[4]));
 
     auto begin = std::chrono::high_resolution_clock::now();
 
     // auto blocks = g.findBlocksByCycle();
-    // auto blocks = g.findBlocksByTarjan();
-    auto blocks = g.findBlocksByJoints();
+    auto blocks = g.findBlocksByTarjan();
+    // auto blocks = g.findBlocksByJoints();
 
     auto end = std::chrono::high_resolution_clock::now();
 
