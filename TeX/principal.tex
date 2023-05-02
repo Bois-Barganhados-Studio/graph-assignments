@@ -1,0 +1,102 @@
+\documentclass[a4paper,12pt,Times]{article}
+\usepackage{abakos}  %pacote com padrão da Abakos baseado no padrão da PUC
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Capa da revista
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\setcounter{page}{80} %iniciar contador de pagina de valor especificado
+\newcommand{\monog}{Trabalho Prático 1}
+\newcommand{\monogES}{Model - Pratical Exercise - ICEI - PUC Minas}
+\newcommand{\tipo}{Artigo }  % Especificar a seção tipo do trabalho: Artigo, Resumo, Tese, Dociê etc
+\newcommand{\origem}{Brasil}
+\newcommand{\editorial}{\textbf{Puc Minas}, Belo Horizonte, Maio 2023}  % p. xx-xx – páginas inicial-final do artigo
+% \newcommand{\lcc}{\scriptsize{Licença Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported}}
+
+%%%%%%%%%%%%%%%%%INFORMAÇÕES SOBRE AUTOR PRINCIPAL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\AutorA}{Edmar de Oliveira Melandes Junior}
+\newcommand{\funcaoA}{}
+\newcommand{\emailA}{edmar.junior@sga.pucminas.br}
+\newcommand{\cursA}{Bacharelado em Ciência da Computação da PUC Minas}
+
+\newcommand{\AutorB}{Leon Júnio Martins Ferreira}
+\newcommand{\funcaoB}{}
+\newcommand{\emailB}{leon.ferreira@sga.pucminas.br}
+\newcommand{\cursB}{Bacharelado em Ciência da Computação da PUC Minas}
+
+\newcommand{\AutorC}{Vinicius Gabriel dos Santos Teixeira}
+\newcommand{\funcaoC}{}
+\newcommand{\emailC}{vgsteixeira@sga.pucminas.br}
+\newcommand{\cursC}{Bacharelado em Ciência da Computação da PUC Minas}
+
+% Definir macros para o nome da Instituição, da Faculdade, etc.
+\newcommand{\univ}{Pontifícia Universidade Católica de Minas Gerais}
+
+\newcommand{\keyword}[1]{\textsf{#1}}
+
+\begin{document}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% Pagina de titulo
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{flushleft}
+
+\begin{minipage} [c][3cm][b]{16.5cm} % a primeira minipágina tem uma altura de 1.5cm e uma largura de 2.3cm.
+% comando que introduz o logo da escola que nesta altura já terá de estar na pasta imagens que 
+%por sua vez está na pasta onde se guardou o arquivo tex. E introduzimos essa imagem com a mesma altura da minipage.
+\begin{center}
+\centering
+\includegraphics[scale=0.3]{figuras/brasao.jpg} \\
+PONTIFÍCIA UNIVERSIDADE CATÓLICA DE MINAS GERAIS \\
+Instituto de Ciências Exatas e de Informática \\
+\end{center}
+\end{minipage}
+
+\vspace{1.5cm} % add 1.5cm of vertical space after the minipage
+
+ \vspace{0cm} {
+ \singlespacing \Large{\monog \symbolfootnote[1]{Artigo apresentado como documentação ao Instituto de Ciências Exatas e Informática da Pontifícia Universidade Católica de Minas Gerais para disciplina Teoria dos Grafos e Computabilidade.} \\ }
+  \normalsize{\monogES}
+ }
+\end{flushleft}
+\begin{flushright}
+\singlespacing 
+\normalsize{\AutorA \footnote{\funcaoA \cursA, \origem -- \emailA }} \\
+\normalsize{\AutorB \footnote{\funcaoB \cursB, \origem -- \emailB }} \\
+\normalsize{\AutorC \footnote{\funcaoC \cursC, \origem -- \emailC }} \\
+% \symbolfootnote[0]{Artigo recebido em 10 de julho de 1983 e aprovado em 29 de maio 2012}
+\end{flushright}
+\thispagestyle{empty}
+
+\begin{abstract}
+\noindent
+Este exercício prático contém a documentação do Trabalho Prático I, feita em LATEX. O problema de encontrar cada componente biconexo de um grafo, o que representa encontrar propriedades interessantes, sendo que, em algumas áreas da Computação, se diz que tal grafo é “tolerante a falhas”. Essa tarefa lida com a questão de encontrar todos os componentes biconexos, blocos, de um grafo conexo com tamanhos variados de vértices e arestas. Neste trabalho foram implementadas e comparadas três formas distintas para resolução do problema de encontrar blocos.  Uma forma utilizando um método que verifique a existência de dois caminhos internamente disjuntos (ou um ciclo) entre cada par de vértices do bloco. Outro método que identifica articulações testando a conectividade após a remoção de cada vértice. A última e melhor solução que garante a resposta com uma boa complexidade, utilizando o método de Tarjan \cite{artigo_tarjan}. Os códigos do trabalho prático foram implementados em um mesmo projeto utilizando a linguagem C++.  %por citação do tarjan
+\\\textbf{\keyword{Palavras-chave: }} Componentes Biconexos. C++. Tarjan. Grafos.
+\end{abstract}
+
+\selectlanguage{brazilian}
+ \onehalfspace  % espaçamento 1.5 entre linhas
+ \setlength{\parindent}{1.25cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% INICIO DO TEXTO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\include{textos}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FIM DO TEXTO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \selectlanguage{brazil}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Inicio bibliografia
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ \newpage
+ \singlespace{
+ \bibliographystyle{abntex2-alf}
+ \bibliography{bibliografia}
+ }
+
+\end{document}
