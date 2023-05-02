@@ -87,16 +87,15 @@ int Graph::getM()
     return m;
 }
 
-/// @brief Ostream operator overload to allow printing the graph with std::cout
 std::ostream &operator<<(std::ostream &os, Graph g)
 {
-    os << "start: " << g.start << ", n: " << g.n << ", m: " << g.m << ";\n";
     for (int i = g.start; i < g.n; i++)
     {
         os << "[" << i << "] = { ";
         std::copy(g.adjList[i].begin(), --g.adjList[i].end(), std::ostream_iterator<int>(os, ", "));
         os << g.adjList[i].back() << " }\n";
     }
+    os << "start: " << g.start << ", n: " << g.n << ", m: " << g.m << ";\n";
     return os;
 }
 
