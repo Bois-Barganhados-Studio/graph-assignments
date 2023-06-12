@@ -30,5 +30,8 @@ public:
     int getRadius(std::vector<std::vector<int>> &dists, std::vector<int> centers);
     void tryCombinations(std::vector<std::vector<int>> &dists, int i, std::vector<int> &curr, std::vector<int> &ans, int &radius);
     KcInfo exactKCenter();
+    KcInfo approximateKcenter();
+    KcInfo approximateKcenter2(int k);
+    int maxindex(int *dist, int n);
     KcInfo tryCenters(std::vector<int>& centroids);
 };
