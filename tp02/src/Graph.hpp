@@ -32,5 +32,6 @@ public:
     KcInfo exactKCenter();
     KcInfo approximateKcenter();
     KcInfo approximateKcenter2(int k);
-    int maxindex();
+    int maxindex(int *dist, int n);
+    KcInfo tryCenters(std::vector<int>& centroids);
 };

@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <deque>
+#include <climits>
 
 bool operator==(const edge &e1, const edge &e2)
 {
@@ -50,11 +51,11 @@ Graph::~Graph()
 
 void Graph::print()
 {
-    for (int v = start; v < n; v++)
-    {
-        for (edge e : adjList[v])
-        {
-            std::cout << v << " - " << e.w << ": " << e.weight << "\n";
+    std::cout << "|V|: " << n - 1 << ", |E|: " << m << "\nEdge list:\n";
+    for (int v = start; v < n; v++) {
+        for (const auto& e : adjList[v]) {
+            if (v < e.w)
+                std::cout << "{" << v << ", " << e.w << "} weight: " << e.weight << "\n";
         }
     }
 }
@@ -76,10 +77,8 @@ void Graph::dijkstra(int root, std::vector<int> &dist)
     {
         int v = heap.front();
         heap.pop_front();
-        for (auto &e : adjList[v])
-        {
-            if (dist[v] < dist[e.w] - e.weight)
-            {
+        for (const auto &e : adjList[v]) {
+            if (dist[v] < dist[e.w] - e.weight) {
                 dist[e.w] = dist[v] + e.weight;
             }
         }
@@ -210,4 +209,17 @@ int maxindex(int *dist, int n)
             mi = i;
     }
     return mi;
+}
+
+KcInfo Graph::tryCenters(std::vector<int>& centers)
+{
+    int old_k = k;
+    k = centers.size();
+    std::vector<std::vector<int>> dists(n, std::vector<int>(n,  INT_MAX));
+    for (int i = 0; i < k; i++) {
+        dijkstra(centers[i], dists[centers[i]]);
+    }
+    KcInfo kci = {getRadius(dists, centers), centers};
+    k = old_k;
+    return kci;
 }
