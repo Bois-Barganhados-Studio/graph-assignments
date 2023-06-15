@@ -49,6 +49,11 @@ Graph::~Graph()
 {
 }
 
+int Graph::getK()
+{
+    return k;
+}
+
 void Graph::print()
 {
     std::cout << "|V|: " << n - 1 << ", |E|: " << m << "\nEdge list:\n";
@@ -107,7 +112,8 @@ int Graph::getRadius(std::vector<std::vector<int>> &dists, std::vector<int> cent
     return radius;
 }
 
-void Graph::tryCombinations(std::vector<std::vector<int>> &dists, int i, std::vector<int> &curr, std::vector<int> &ans, int &radius)
+void Graph::tryCombinations(std::vector<std::vector<int>> &dists, int i, 
+std::vector<int> &curr, std::vector<int> &ans, int &radius)
 {
     if (curr.size() == k)
     {
@@ -145,65 +151,24 @@ KcInfo Graph::exactKCenter()
     return kci;
 }
 
-KcInfo Graph::approximateKcenter()
+int Graph::getFirstCenter(std::vector<std::vector<int>> &dists)
 {
-    std::vector<std::vector<int>> dists(n, std::vector<int>(n, INT_MAX));
-    std::vector<int> centers;
-    std::vector<int> dist(n, INT_MAX);
-    KcInfo kci = {INT_MAX, std::vector<int>()};
-    int radius = INT_MAX;
-    int v = start;
-    while (centers.size() < k)
-    {
-        centers.push_back(v);
-        dijkstra(v, dist);
-        int aux = getRadius(dists, centers);
-        if (radius > aux)
-        {
-            radius = aux;
-            kci.centers = centers;
-            kci.radius = radius;
-        }
-        v = -1;
-        int maxDist = 0;
-        for (int i = start; i < n; i++)
-        {
-            if (std::find(centers.begin(), centers.end(), i) == centers.end() && dist[i] > maxDist)
-            {
-                v = i;
-                maxDist = dist[i];
-            }
+    std::vector<int> furthest(n, INT_MAX);
+    int first = 0, aux = INT_MAX;
+    for (int v = start; v < n; v++) {
+        furthest[v] = *std::max_element(dists[v].begin() + 1, dists[v].end());
+        if (furthest[v] < aux || (furthest[v] == aux && adjList[v].size() > adjList[first].size())) {
+            first = v;
+            aux = furthest[v];
         }
     }
-    return kci;
+    return first;
 }
 
-// geeks for geeks
-
-KcInfo Graph::approximateKcenter2(int k)
+int Graph::maxIndex(std::vector<int>& dist)
 {
-    std::vector<int> dist(n, INT_MAX);
-    std::vector<int> centers;
-    KcInfo kci = {INT_MAX, std::vector<int>()};
-    int max = 0;
-    for (int i = start; i < k; i++)
-    {
-        centers.push_back(max);
-        for (int j = start; j < n; j++)
-        {
-            dist[j] = std::min(dist[j], adjList[max][j].weight);
-        }
-        max = maxindex(dist.data(), n);
-    }
-    kci.radius = dist[max];
-    kci.centers = centers;
-    return kci;
-}
-
-int maxindex(int *dist, int n)
-{
-    int mi = 0;
-    for (int i = 0; i < n; i++)
+    int mi = start;
+    for (int i = start + 1; i < n; i++)
     {
         if (dist[i] > dist[mi])
             mi = i;
@@ -211,15 +176,64 @@ int maxindex(int *dist, int n)
     return mi;
 }
 
-KcInfo Graph::tryCenters(std::vector<int>& centers)
+KcInfo Graph::farthestFirstTraversalGreedy()
 {
-    int old_k = k;
-    k = centers.size();
-    std::vector<std::vector<int>> dists(n, std::vector<int>(n,  INT_MAX));
-    for (int i = 0; i < k; i++) {
+    std::vector<std::vector<int>> dists(n, std::vector<int>(n, INT_MAX));
+    for (int v = start; v < n; v++)
+    {
+        dijkstra(v, dists[v]);
+    }
+    std::vector<int> dist(n, INT_MAX);
+    std::vector<int> centers;
+    KcInfo kci = {INT_MAX, std::vector<int>()};
+    int max = getFirstCenter(dists);
+    for (int i = 0; i < k; i++)
+    {
+        centers.push_back(max);
+        dist[max] = 0;
+        for (int j = start; j < n; j++)
+        {
+            dist[j] = std::min(dist[j], dists[max][j]);
+        }
+        max = maxIndex(dist);
+    }
+    kci.radius = dist[max];
+    kci.centers = centers;
+    return kci;
+}
+
+int Graph::tryCenters(std::vector<int>& centers, std::vector<std::vector<int>>& dists)
+{
+    for (int i = 0; i < centers.size(); i++) {
         dijkstra(centers[i], dists[centers[i]]);
     }
-    KcInfo kci = {getRadius(dists, centers), centers};
-    k = old_k;
-    return kci;
+    KcInfo kci = {-1, centers};
+    return kci.radius;
+}
+
+KcInfo Graph::greedyPureKCenter()
+{
+    std::vector<int> centers;
+    std::vector<std::vector<int>> dists(n, std::vector<int>(n,  INT_MAX));
+    int min = INT_MAX, curr = 0, center = 0;
+    for (int v = start; v < n; v++) {
+        dijkstra(v, dists[v]);
+    }
+    for (int i = 0; i < k; i++) {
+        min = INT_MAX; 
+        for (int j = start; j < n; j++) {
+            if (!std::count(centers.begin(), centers.end(), j)) {
+                centers.push_back(j);
+                curr = getRadius(dists, centers);
+                centers.pop_back();
+                if (curr < min) {
+                    center = j;
+                    min = curr;
+                }
+            }
+        }
+        centers.push_back(center);
+        center = 0;
+    }
+    return {min, centers};
 }

@@ -1,0 +1,10 @@
+-- pmed1 --
+radius: 127
+centers: { 5, 9, 57, 63, 78 }
+Time: 21s
+
+-- pmed6 --
+radius: 84
+centers: { 32, 64, 110, 117, 164 }
+Time: 1317179528us
+Approx: 22min
