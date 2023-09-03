@@ -19,8 +19,8 @@ Practical Assignments of COMPSCI Graph Theory class at PUC Minas 2023-1.
 
 ```bash
   git clone https://github.com/ravixr/graph_pa.git
-  cd "tp1 or tp2"
-  cd src
+  export PROBLEM_DIR = tp01 # tp01 or tp02 
+  cd ./$PROBLEM_DIR/src
   make release
   ./graph.exe
 ```
